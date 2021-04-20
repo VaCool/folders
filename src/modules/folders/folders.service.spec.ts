@@ -19,7 +19,7 @@ describe('FoldersService', () => {
       const result = foldersService.execute('CREATE fruits/banana');
       expect(result).toEqual('CREATE fruits/banana');
       expect(foldersService.execute('LIST')).toEqual(
-        'LIST\n' + 'pats\n' + ' dogs\n' + ' cats\n' + 'fruits\n' + ' apple\n' + ' banana'
+        'LIST\n' + 'fruits\n' + '  apple\n' + '  banana\n' + 'pats\n' + '  cats\n' + '  dogs'
       );
       foldersService.execute('DELETE fruits/banana');
     });
@@ -46,7 +46,7 @@ describe('FoldersService', () => {
       const result = foldersService.execute('MOVE fruits/parrot pats');
       expect(result).toEqual('MOVE fruits/parrot pats');
       expect(foldersService.execute('LIST')).toEqual(
-        'LIST\n' + 'pats\n' + ' dogs\n' + ' cats\n' + ' parrot\n' + 'fruits\n' + ' apple'
+        'LIST\n' + 'fruits\n' + '  apple\n' + 'pats\n' + '  cats\n' + '  dogs\n' + '  parrot'
       );
       foldersService.execute('DELETE pats/parrot');
     });
@@ -84,7 +84,7 @@ describe('FoldersService', () => {
   describe('LIST and incorrect command', () => {
     it('Should be success', () => {
       expect(foldersService.execute('LIST')).toEqual(
-        'LIST\n' + 'pats\n' + ' dogs\n' + ' cats\n' + 'fruits\n' + ' apple'
+        'LIST\n' + 'fruits\n' + '  apple\n' + 'pats\n' + '  cats\n' + '  dogs'
       );
     });
 

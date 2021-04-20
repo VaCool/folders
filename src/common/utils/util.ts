@@ -1,7 +1,7 @@
 export function addSpaces(str: string, count: number): string {
   let spaces = '';
   while (count) {
-    spaces += ' ';
+    spaces += '  ';
     count--;
   }
   return spaces + str;

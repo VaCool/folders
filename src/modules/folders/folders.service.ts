@@ -1,8 +1,10 @@
 import { addSpaces } from '../../common/utils/util';
 import { Commands } from '../../common/enums/commands.enum';
 
+type FoldersType = Map<string, FoldersType>;
+
 export class FoldersService {
-  private folders = new Map();
+  private folders: FoldersType = new Map();
   private path = '';
 
   public execute(line: string): string {
@@ -20,14 +22,15 @@ export class FoldersService {
         return `${Commands.MOVE} ${folder} ${destination}`;
       case Commands.LIST:
         this.folderList(this.folders);
-        return `${Commands.LIST}` + this.folderList(this.folders);
+        return `${Commands.LIST}${this.folderList(this.folders)}`;
       default:
         throw new Error(`Command not found: ${line}`);
     }
   }
 
-  private folderList(map: Map<string, any>, count = 0): string {
+  private folderList(map: FoldersType, count = 0): string {
     let result = '';
+    map = new Map([...map.entries()].sort());
     map.forEach((value, key) => {
       result += '\n' + addSpaces(key, count);
       if (value?.size) {
@@ -37,27 +40,29 @@ export class FoldersService {
     return result;
   }
 
-  private createFolder(arr: string[], map: Map<string, any>): void {
+  private createFolder(arr: string[], map: FoldersType): void {
     const [name, ...args] = arr;
-    if (!map.get(name) && args.length) {
+    const value = map.get(name) as FoldersType;
+    if (!value && args.length) {
       throw new Error(`Cannot create ${this.path} - ${name} does not exist`);
     }
 
     if (args.length) {
-      return this.createFolder(args, map.get(name));
+      return this.createFolder(args, value);
     }
-    if (map.get(name)) {
+    if (value) {
       throw new Error(`Cannot create ${this.path} - ${arr[0]} already exist`);
     }
     map.set(name, new Map());
   }
 
-  public deleteFolder(arr: string[], map: Map<string, any>): void {
+  public deleteFolder(arr: string[], map: FoldersType): void {
     const [name, ...args] = arr;
-    if (!map.get(name)) {
+    const value = map.get(name) as FoldersType;
+    if (!value) {
       throw new Error(`Cannot delete ${this.path} - ${arr[0]} does not exist`);
     }
-    args.length ? this.deleteFolder(args, map.get(name)) : map.delete(name);
+    args.length ? this.deleteFolder(args, value) : map.delete(name);
   }
 
   private moveFolder(from: string[], to: string[]): void {
@@ -67,11 +72,12 @@ export class FoldersService {
     this.deleteFolder(from, this.folders);
   }
 
-  private findFolder(arr: string[], map: Map<string, any>): Map<string, any> {
+  private findFolder(arr: string[], map: FoldersType): FoldersType {
     const [name, ...args] = arr;
-    if (!map.get(name)) {
+    const value = map.get(name) as FoldersType;
+    if (!value) {
       throw new Error(`Cannot move ${this.path} - ${arr[0]} does not exist`);
     }
-    return args.length ? this.findFolder(args, map.get(name)) : map.get(name);
+    return args.length ? this.findFolder(args, value) : value;
   }
 }
